@@ -19,9 +19,9 @@ namespace AnaliseNumerica
         {
             //double Valor = SimpsonRule.IntegrateComposite(x => x * x, 0.0, 10.0, 4);
             //Console.WriteLine(Valor);
-
-            //Valor determinado pelo Waldemar porque ele disse que seria mais facil
-
+            
+            // eu entendi como faz essa parte e o buraco é mais embaixo nao vai dar pra eu terminar agora
+            // porque to saindo pro jantar. Amanha a gente faz
             double h = 4.5;
             for (int layer = 0; layer < ImageContent.numLayer; layer++)
             {
