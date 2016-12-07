@@ -8,31 +8,28 @@ namespace AnaliseNumerica
     {
         static void Main(string[] args)
         {
-            byte[] ImageContent = ReadRawFile();
+            ImageContent imagem = new ImageContent();
 
-            DefinePixels(ImageContent);
+            DefinePixels(imagem);
 
             WritePGMFile();
         }
 
-        private static byte[] ReadRawFile()
-        {
-            try
-            {
-                byte[] data = File.ReadAllBytes(@"..\..\Assets\head-8bit.raw");
-                return data;
-            }
-            catch (Exception Error)
-            {
-                Console.WriteLine(Error);
-                throw;
-            }
-        }
-
-        private static void DefinePixels(byte [] ImageContent)
+        private static void DefinePixels(ImageContent imagem)
         {
             //double Valor = SimpsonRule.IntegrateComposite(x => x * x, 0.0, 10.0, 4);
             //Console.WriteLine(Valor);
+
+            //Valor determinado pelo Waldemar porque ele disse que seria mais facil
+
+            double h = 4.5;
+            for (int layer = 0; layer < ImageContent.numLayer; layer++)
+            {
+                for (int position = 0; position < ImageContent.sizeX; position++)
+                {
+                    double s = Integral.Simpson(imagem, position, layer, 0, ImageContent.sizeY, h);
+                }
+            } 
         }
 
         private static void WritePGMFile()

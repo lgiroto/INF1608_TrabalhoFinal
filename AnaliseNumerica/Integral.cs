@@ -8,23 +8,22 @@ namespace AnaliseNumerica
 {
     class Integral
     {
-        public double Simpson(Func<double, double> f, double a, double b, int n)
+        public static double Simpson(ImageContent imagem, int position, int layer, double a, double b, double h)
         {
 
-            double h = (b - a) / n;
             double x = a;
             double soma = 0;
 
             while (x < b)
             {
-                soma += (h / 6) * (f(x) + 4 * f(x + (h / 2)) + f(x + h));
+                soma += (h / 6) * (imagem.OpacityValue(position, layer, x) + 4 * imagem.OpacityValue(position, layer, x + (h / 2)) + imagem.OpacityValue(position, layer, x + h));
                 x += h;
             }
 
             return soma;
         }
 
-        void DoubleSimpson(double a, double b, Func<double, double> f, SimpsonResult result)
+        public static void DoubleSimpson(double a, double b, Func<double, double> f, SimpsonResult result)
         {
 
             double Sab, Sac, Scb;
@@ -43,7 +42,7 @@ namespace AnaliseNumerica
             result.erro = Math.Abs(Sab - Sac - Scb) / 15;
         }
 
-        double AdaptiveSimpson(double a, double b, Func<double, double> f, double tol)
+        public static double AdaptiveSimpson(double a, double b, Func<double, double> f, double tol)
         {
             SimpsonResult result = new SimpsonResult();
 
@@ -61,6 +60,7 @@ namespace AnaliseNumerica
         }
     }
 
+    // classe criada porque pareceu a forma mais facil de implementar o metodo adptativo que precisa retornar dois valores
     class SimpsonResult
     {
         public double resultado;

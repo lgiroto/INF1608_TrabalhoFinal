@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,25 @@ namespace AnaliseNumerica
         public const int numLayer = 99;
         public byte[] conteudo;
         
+        public ImageContent()
+        {
+            conteudo = ReadRawFile();
+        }
+
+        private static byte[] ReadRawFile()
+        {
+            try
+            {
+                byte[] data = File.ReadAllBytes(@"..\..\Assets\head-8bit.raw");
+                return data;
+            }
+            catch (Exception Error)
+            {
+                Console.WriteLine(Error);
+                throw;
+            }
+        }
+
         public double DensityValue (int position ,int layer, double value)
         {
             //Implementacao ainda sem a interpolacao linear
