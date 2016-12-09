@@ -10,11 +10,11 @@ namespace AnaliseNumerica
         public const int resolutionX = 128;
         public const int resolutionZ = 99;
         public const int numLayer = 99;
-        public byte[] conteudo;
+        public byte[] content;
         
         public ImageContent()
         {
-            conteudo = ReadRawFile();
+            content = ReadRawFile();
         }
 
         private static byte[] ReadRawFile()
@@ -31,29 +31,26 @@ namespace AnaliseNumerica
             }
         }
 
-        public double DensityValue (int position ,int layer, double value)
+        public double DensityValue (int position, int layer, double value)
         {
             int index = 0;
-
             if((value % 1) == 0)
             {
                 index = Convert.ToInt32((layer * sizeX * sizeY) + (value * sizeX) + position);
-                return conteudo[index];
+                return content[index];
             }
             else
             {
                 int firstIndex = Convert.ToInt32((layer * sizeX * sizeY) + (Math.Floor(value) * sizeX) + position);
                 int lastIndex = Convert.ToInt32((layer * sizeX * sizeY) + (Math.Ceiling(value) * sizeX) + position);
-                return ((value - Math.Floor(value)) * conteudo[firstIndex]) + ((Math.Ceiling(value) - value) * conteudo[lastIndex]);
+                return ((value - Math.Floor(value)) * content[firstIndex]) + ((Math.Ceiling(value) - value) * content[lastIndex]);
             }
         }
 
         public double OpacityValue (int position, int layer, double value)
         {
-            var DensityVal = DensityValue(position, layer, value)/255.0;
-            if (DensityVal < 0.3)
-                return 0;
-            return 0.05 * (DensityVal - 0.3);
+            var densityVal = DensityValue(position, layer, value)/255.0;
+            return (densityVal < 0.3) ?  0 : (0.05 * (densityVal - 0.3));
         }
     }
 }

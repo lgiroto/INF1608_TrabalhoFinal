@@ -12,8 +12,8 @@ namespace AnaliseNumerica
 
         static void Main(string[] args)
         {
-            ImageContent imagem = new ImageContent();
-            List<Pixel> CTScanPixels = GeneratePGMData(imagem);
+            ImageContent image = new ImageContent();
+            List<Pixel> CTScanPixels = GeneratePGMData(image);
             WritePGMFile(CTScanPixels);
         }
 
@@ -32,7 +32,7 @@ namespace AnaliseNumerica
                     Pixel pixel = new Pixel();
                     pixel.PosX = position;
                     pixel.PosZ = layer;
-                    pixel.Valor = Convert.ToInt32(Math.Floor(pixelIntensity));
+                    pixel.Value = Convert.ToInt32(Math.Floor(pixelIntensity));
                     ImagePixels.Add(pixel);
                 }
             }
@@ -41,19 +41,19 @@ namespace AnaliseNumerica
 
         private static double DefinePixel (ImageContent imagem, int position, int layer, double h)
         {
-            double soma = 0, s = 0;
+            double sum = 0, s = 0;
             while (s < (ImageContent.sizeY - h))
             {
                 double innerIntegralX = Integral.Simpson(imagem, position, layer, 0, s, h / 2);
                 double innerIntegralXH_2 = Integral.Simpson(imagem, position, layer, 0, s + (h / 2), h / 2);
                 double innerIntegralXH = Integral.Simpson(imagem, position, layer, 0, s + h, h / 2);
-                soma += (h / 6) * ((imagem.OpacityValue(position, layer, s) * Math.Exp(-innerIntegralX)) +
+
+                sum += (h / 6) * ((imagem.OpacityValue(position, layer, s) * Math.Exp(-innerIntegralX)) +
                                    4 * (imagem.OpacityValue(position, layer, s + (h / 2)) * Math.Exp(-innerIntegralXH_2)) +
                                    (imagem.OpacityValue(position, layer, s + h) * Math.Exp(-innerIntegralXH)));
                 s += h;
             }
-
-            return soma;
+            return sum;
         }
 
         private static void WritePGMFile(List<Pixel> CTScanPixels)
@@ -71,8 +71,8 @@ namespace AnaliseNumerica
                 currentLine = $"{ImageContent.resolutionX} {ImageContent.resolutionZ}";
                 file.WriteLine(currentLine);
 
-                var MaxValue = CTScanPixels.Max(x => x.Valor);
-                currentLine = MaxValue.ToString();
+                var maxValue = CTScanPixels.Max(x => x.Value);
+                currentLine = maxValue.ToString();
                 file.WriteLine(currentLine);
 
                 for (int z = 0; z < ImageContent.resolutionZ; z++)
@@ -80,12 +80,12 @@ namespace AnaliseNumerica
                     currentLine = "";
                     for (int x = 0; x < ImageContent.resolutionX; x++)
                     {
-                        var Valor = CTScanPixels.FirstOrDefault(p => p.PosZ == z && p.PosX == x)?.Valor;
-                        if (Valor == null)
+                        var value = CTScanPixels.FirstOrDefault(p => p.PosZ == z && p.PosX == x)?.Value;
+                        if (value == null)
                             throw new Exception($"Erro: pixel ({x},{z}) nao encontrado");
 
                         string lineSpace = (x == ImageContent.resolutionX - 1) ? "" : " ";
-                        currentLine += (Valor.ToString() + lineSpace);
+                        currentLine += (value.ToString() + lineSpace);
                     }
                     file.WriteLine(currentLine);
                 }

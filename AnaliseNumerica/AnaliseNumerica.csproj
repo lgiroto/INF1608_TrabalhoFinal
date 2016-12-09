@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ImageContent.cs" />
+    <Compile Include="Models\ImageContent.cs" />
     <Compile Include="Integral.cs" />
     <Compile Include="Models\Pixel.cs" />
     <Compile Include="Program.cs" />
