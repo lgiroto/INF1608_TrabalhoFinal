@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AnaliseNumerica
 {
@@ -16,7 +12,9 @@ namespace AnaliseNumerica
 
             while (x < b)
             {
-                soma += (h / 6) * (imagem.OpacityValue(position, layer, x) + 4 * imagem.OpacityValue(position, layer, x + (h / 2)) + imagem.OpacityValue(position, layer, x + h));
+                soma += (h / 6) * (imagem.OpacityValue(position, layer, x) + 
+                                   4 * imagem.OpacityValue(position, layer, x + (h / 2)) +
+                                   imagem.OpacityValue(position, layer, x + h));
                 x += h;
             }
 
@@ -60,7 +58,6 @@ namespace AnaliseNumerica
         }
     }
 
-    // classe criada porque pareceu a forma mais facil de implementar o metodo adptativo que precisa retornar dois valores
     class SimpsonResult
     {
         public double resultado;

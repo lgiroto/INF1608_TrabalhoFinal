@@ -1,38 +1,62 @@
 ﻿using System;
 using System.IO;
-using MathNet.Numerics.Integration;
+using AnaliseNumerica.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AnaliseNumerica
 {
-    class Program
+    public class Program
     {
+        public const double h = 4.5;
+
         static void Main(string[] args)
         {
             ImageContent imagem = new ImageContent();
-
-            DefinePixels(imagem);
-
-            WritePGMFile();
+            List<Pixel> CTScanPixels = GeneratePGMData(imagem);
+            WritePGMFile(CTScanPixels);
         }
 
-        private static void DefinePixels(ImageContent imagem)
+        private static List<Pixel> GeneratePGMData(ImageContent imagem)
         {
-            //double Valor = SimpsonRule.IntegrateComposite(x => x * x, 0.0, 10.0, 4);
-            //Console.WriteLine(Valor);
-            
-            // eu entendi como faz essa parte e o buraco é mais embaixo nao vai dar pra eu terminar agora
-            // porque to saindo pro jantar. Amanha a gente faz
-            double h = 4.5;
+            List<Pixel> ImagePixels = new List<Pixel>();
+
             for (int layer = 0; layer < ImageContent.numLayer; layer++)
             {
-                for (int position = 0; position < ImageContent.sizeX; position++)
+                for (int position = 0; position < ImageContent.resolutionX; position++)
                 {
-                    double s = Integral.Simpson(imagem, position, layer, 0, ImageContent.sizeY, h);
+                    double intPixel = DefinePixel(imagem, 2*position, layer, h);
+                    double intPixelNext = DefinePixel(imagem, 2*position + 1, layer, h);
+                    double pixelIntensity = 255 * (intPixel + intPixelNext) / 2.0;
+
+                    Pixel pixel = new Pixel();
+                    pixel.PosX = position;
+                    pixel.PosZ = layer;
+                    pixel.Valor = Convert.ToInt32(Math.Floor(pixelIntensity));
+                    ImagePixels.Add(pixel);
                 }
-            } 
+            }
+            return ImagePixels;
         }
 
-        private static void WritePGMFile()
+        private static double DefinePixel (ImageContent imagem, int position, int layer, double h)
+        {
+            double soma = 0, s = 0;
+            while (s < (ImageContent.sizeY - h))
+            {
+                double innerIntegralX = Integral.Simpson(imagem, position, layer, 0, s, h / 2);
+                double innerIntegralXH_2 = Integral.Simpson(imagem, position, layer, 0, s + (h / 2), h / 2);
+                double innerIntegralXH = Integral.Simpson(imagem, position, layer, 0, s + h, h / 2);
+                soma += (h / 6) * ((imagem.OpacityValue(position, layer, s) * Math.Exp(-innerIntegralX)) +
+                                   4 * (imagem.OpacityValue(position, layer, s + (h / 2)) * Math.Exp(-innerIntegralXH_2)) +
+                                   (imagem.OpacityValue(position, layer, s + h) * Math.Exp(-innerIntegralXH)));
+                s += h;
+            }
+
+            return soma;
+        }
+
+        private static void WritePGMFile(List<Pixel> CTScanPixels)
         {
             string currentLine = "P2";
 
@@ -41,26 +65,30 @@ namespace AnaliseNumerica
                 StreamWriter file = new StreamWriter(@"..\..\Results\Resultado.pgm");
                 file.WriteLine(currentLine);
 
-                currentLine = "# Descrição da imagem";
+                currentLine = "# Resultado de um CT Scan";
                 file.WriteLine(currentLine);
 
-                currentLine = "5 5"; // Dimensão dela, largura x altura
+                currentLine = $"{ImageContent.resolutionX} {ImageContent.resolutionZ}";
                 file.WriteLine(currentLine);
 
-                currentLine = "255"; // Maior valor encontrado de pixel na imagem
+                var MaxValue = CTScanPixels.Max(x => x.Valor);
+                currentLine = MaxValue.ToString();
                 file.WriteLine(currentLine);
 
-                // Exemplo
-                currentLine = "0 255 255 255 255";
-                file.WriteLine(currentLine);
-                currentLine = "255 0 255 255 255";
-                file.WriteLine(currentLine);
-                currentLine = "255 255 0 255 255";
-                file.WriteLine(currentLine);
-                currentLine = "255 255 255 0 255";
-                file.WriteLine(currentLine);
-                currentLine = "255 255 255 255 0";
-                file.WriteLine(currentLine);
+                for (int z = 0; z < ImageContent.resolutionZ; z++)
+                {
+                    currentLine = "";
+                    for (int x = 0; x < ImageContent.resolutionX; x++)
+                    {
+                        var Valor = CTScanPixels.FirstOrDefault(p => p.PosZ == z && p.PosX == x)?.Valor;
+                        if (Valor == null)
+                            throw new Exception($"Erro: pixel ({x},{z}) nao encontrado");
+
+                        string lineSpace = (x == ImageContent.resolutionX - 1) ? "" : " ";
+                        currentLine += (Valor.ToString() + lineSpace);
+                    }
+                    file.WriteLine(currentLine);
+                }
 
                 file.Close();
             }
