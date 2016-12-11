@@ -12,9 +12,15 @@ namespace AnaliseNumerica
 
         static void Main(string[] args)
         {
+            Console.WriteLine("Lendo arquivo do CT Scan...");
             ImageContent image = new ImageContent();
+            Console.WriteLine("Leitura do arquivo do CT Scan finalizada!");
+            Console.WriteLine("Realizando cálculos...");
             List<Pixel> CTScanPixels = GeneratePGMData(image);
+            Console.WriteLine("Cálculos finalizados!");
+            Console.WriteLine("Gerando arquivo PGM...");
             WritePGMFile(CTScanPixels);
+            Console.WriteLine("Arquivo PGM gerado. Veja na pasta 'Results'. Fim :)");
         }
 
         private static List<Pixel> GeneratePGMData(ImageContent imagem)
@@ -23,6 +29,7 @@ namespace AnaliseNumerica
 
             for (int layer = 0; layer < ImageContent.numLayer; layer++)
             {
+                Console.Write("\r{0}%", layer);
                 for (int position = 0; position < ImageContent.resolutionX; position++)
                 {
                     double intPixel = DefinePixel(imagem, 2*position, layer, h);
@@ -36,6 +43,7 @@ namespace AnaliseNumerica
                     ImagePixels.Add(pixel);
                 }
             }
+            Console.Write("\r100%\n");
             return ImagePixels;
         }
 
